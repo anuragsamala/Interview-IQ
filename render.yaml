@@ -1,12 +1,12 @@
-﻿services:
+services:
   # InterviewIQ Backend Web Service
   - type: web
     name: interviewiq-api
     runtime: node
     rootDir: backend
     plan: free
-    buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: npx prisma db push && npm run start
+    buildCommand: npm install && ./node_modules/.bin/prisma generate && npm run build
+    startCommand: ./node_modules/.bin/prisma db push && npm run start
     envVars:
       - key: NODE_ENV
         value: production
