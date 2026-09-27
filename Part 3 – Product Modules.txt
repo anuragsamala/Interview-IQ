@@ -1,0 +1,412 @@
+📘 MASTER PROJECT SPECIFICATION (SRS)
+Part 3 – Product Modules, User Flows & Dashboard Design
+
+Project Name: InterviewIQ AI
+
+Version: 1.0
+
+21. User Journey
+
+A user's complete journey through the platform should be:
+
+Landing Page
+      │
+      ▼
+Register/Login
+      │
+      ▼
+Verify Email (OTP)
+      │
+      ▼
+Complete Profile
+      │
+      ▼
+Upload Resume
+      │
+      ▼
+Choose Target Role
+      │
+      ▼
+Upload Job Description (Optional)
+      │
+      ▼
+AI Resume Analysis
+      │
+      ▼
+ATS Report
+      │
+      ▼
+Dashboard
+      │
+      ▼
+Start Mock Interview
+      │
+      ▼
+Receive Feedback
+      │
+      ▼
+Track Progress
+      │
+      ▼
+Generate Personalized Learning Plan
+22. Landing Page
+
+The landing page should look like a modern SaaS product.
+
+Sections
+Hero Section
+Feature Showcase
+AI Demo Preview
+Supported Companies
+Interview Categories
+Resume Scanner Preview
+Testimonials (Demo Content)
+FAQ
+Pricing Placeholder (Future)
+Footer
+Hero CTA Buttons
+Get Started
+Try Demo
+Watch Demo
+23. Authentication Module
+Login Methods
+Email & Password
+Email OTP
+Google OAuth
+GitHub OAuth
+Registration Flow
+Register
+
+↓
+
+Email Verification
+
+↓
+
+Create Profile
+
+↓
+
+Dashboard
+Forgot Password
+Email
+
+↓
+
+OTP
+
+↓
+
+New Password
+24. User Profile
+
+Every user has:
+
+Profile Picture
+Name
+Email
+College
+Graduation Year
+Skills
+Experience
+Preferred Role
+Preferred Companies
+Preferred Language
+Resume History
+25. Dashboard
+
+After login:
+
+The dashboard shows
+
+Quick Stats
+ATS Score
+Coding Score
+Interview Score
+Communication Score
+Weekly Progress
+Company Readiness
+Recent Activity
+Interviews
+Coding Tests
+ATS Reports
+Learning Plans
+Quick Actions
+Start Interview
+Upload Resume
+Coding Practice
+ATS Scanner
+Learning Plan
+Company Preparation
+Analytics Cards
+Streak
+Total Interviews
+Average Score
+Hours Practiced
+26. Resume Module
+Upload
+
+Supports:
+
+PDF
+DOCX
+Resume History
+
+Users can:
+
+Upload multiple resumes
+Compare resumes
+Restore old versions
+Delete resumes
+Resume Analysis
+
+AI extracts:
+
+Skills
+Education
+Projects
+Certifications
+Experience
+Technologies
+Resume Score
+
+Shows:
+
+ATS Score
+Resume Strength
+Weak Sections
+Missing Keywords
+Suggested Improvements
+27. ATS Scanner
+
+User uploads:
+
+Resume
+
+Job Description
+
+↓
+
+AI generates
+
+Match Percentage
+Missing Skills
+Missing Keywords
+Grammar Suggestions
+Formatting Suggestions
+AI Recommendations
+28. Interview Module
+
+Users choose:
+
+Interview Type
+Company
+Role
+Difficulty
+Duration
+Supported Interview Types
+HR
+Technical
+Coding
+Behavioral
+Aptitude
+System Design
+Group Discussion
+Custom
+Interview Screen
+
+Displays:
+
+AI Interviewer
+Live Transcript
+Timer
+Current Question
+Microphone Status
+Camera Preview (Optional)
+End Interview Button
+Interview Flow
+Question
+
+↓
+
+User speaks
+
+↓
+
+Whisper converts speech
+
+↓
+
+Gemini evaluates
+
+↓
+
+Adaptive Agent decides next question
+
+↓
+
+ElevenLabs speaks
+
+↓
+
+Repeat
+29. Coding Interview Platform
+
+Interface includes:
+
+Monaco Editor
+Problem Statement
+Constraints
+Sample Input
+Sample Output
+Hidden Test Cases
+Run Code
+Submit Code
+AI Hint
+AI Explain
+After Submission
+
+AI generates:
+
+Code Review
+Complexity Analysis
+Edge Cases Missed
+Recruiter Feedback
+Improvement Suggestions
+30. Personalized Learning Dashboard
+
+AI continuously updates:
+
+Daily Tasks
+
+Weekly Goals
+
+Monthly Roadmap
+
+Weak Topics
+
+Recommended Practice
+
+Learning Progress
+
+Estimated Interview Readiness
+
+31. Analytics Dashboard
+
+Charts include:
+
+ATS Progress
+Coding Progress
+Interview Scores
+Communication Trend
+Practice Heatmap
+Company Readiness
+Weekly Activity
+Radar Chart
+32. Company Preparation Module
+
+Users select:
+
+Company
+Role
+
+AI generates:
+
+Company Overview
+Hiring Process
+Frequently Asked Questions
+Important Topics
+Recent Trends
+Recommended Resources
+33. Recruiter Portal (Future-Ready)
+
+Although not fully enabled in v1, the architecture should support a recruiter-facing portal.
+
+Capabilities include:
+
+Create Job Listings
+Invite Candidates
+View Candidate Reports
+Compare Candidates
+AI Hiring Recommendations
+34. Admin Dashboard
+
+Only one administrator account.
+
+Modules:
+
+User Management
+Platform Analytics
+AI Usage
+OTP Logs
+Interview Statistics
+Error Logs
+Feature Flags
+System Health
+35. Notifications
+
+Users receive:
+
+Email Verification
+OTP Emails
+Interview Reminders
+Learning Plan Updates
+Weekly Progress Summaries
+Platform Announcements
+
+Future support:
+
+Push Notifications
+36. Settings
+
+Users can configure:
+
+Theme (Dark/Light/System)
+Notification Preferences
+Preferred Language
+Privacy Settings
+Connected Accounts
+Delete Account
+Download Personal Data
+37. Gamification
+
+To increase engagement:
+
+XP Points
+Levels
+Badges
+Daily Streak
+Weekly Challenges
+Milestones
+38. Search
+
+Global search should allow users to quickly find:
+
+Past interviews
+Coding problems
+Reports
+Companies
+Learning resources
+39. File Management
+
+Supported uploads:
+
+Resume PDFs
+Resume DOCX
+Job Descriptions (PDF or text)
+
+Future support:
+
+Portfolio files
+Certificates
+40. User Experience Principles
+
+Every screen should:
+
+Be mobile responsive.
+Support dark mode by default.
+Use consistent spacing and typography.
+Show loading states for AI operations.
+Provide meaningful error messages.
+Avoid unnecessary page reloads.
+Use optimistic updates where appropriate.

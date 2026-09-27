@@ -1,0 +1,496 @@
+📘 MASTER PROJECT SPECIFICATION (SRS)
+Part 4 – Backend Architecture, APIs, Database, Security, Deployment & Coding Standards
+
+Project Name: InterviewIQ AI
+
+Version: 1.0
+
+41. Backend Architecture
+
+The backend will follow a Modular Monolith architecture. This keeps development manageable while making it easy to split into microservices in the future.
+
+Modules
+src/
+│
+├── auth/
+├── users/
+├── resume/
+├── ats/
+├── interview/
+├── coding/
+├── analytics/
+├── ai/
+├── notifications/
+├── companies/
+├── admin/
+├── learning/
+├── uploads/
+├── common/
+└── config/
+
+Each module contains:
+
+Controller
+Service
+Repository
+Routes
+Validation
+DTOs
+Types
+Tests
+42. Frontend Folder Structure
+src/
+│
+├── app/
+├── components/
+│   ├── ui/
+│   ├── interview/
+│   ├── coding/
+│   ├── resume/
+│   ├── dashboard/
+│   └── analytics/
+│
+├── pages/
+├── hooks/
+├── services/
+├── contexts/
+├── lib/
+├── types/
+├── layouts/
+├── assets/
+├── utils/
+└── styles/
+43. Database Design
+Core Tables
+Authentication
+users
+user_sessions
+refresh_tokens
+email_verifications
+otp_codes
+oauth_accounts
+Profile
+user_profiles
+skills
+user_skills
+Resume
+resumes
+resume_versions
+resume_analysis
+ats_reports
+Interview
+interviews
+interview_questions
+interview_answers
+interview_feedback
+interview_transcripts
+Coding
+coding_problems
+coding_submissions
+coding_feedback
+Learning
+learning_plans
+daily_tasks
+weekly_goals
+Analytics
+user_statistics
+activity_logs
+achievements
+Notifications
+notifications
+email_logs
+Companies
+companies
+company_roles
+company_resources
+Administration
+admin_logs
+system_settings
+feature_flags
+44. Database Relationships
+User
+│
+├── Profile
+├── Resumes
+├── Interviews
+├── Coding Submissions
+├── Learning Plans
+├── Notifications
+└── Statistics
+
+Each interview contains:
+
+Multiple questions
+Multiple answers
+Transcript
+AI feedback
+
+Each resume contains:
+
+ATS reports
+Resume analyses
+Version history
+45. API Design
+
+RESTful APIs with versioning.
+
+/api/v1/auth
+/api/v1/users
+/api/v1/resumes
+/api/v1/ats
+/api/v1/interviews
+/api/v1/coding
+/api/v1/analytics
+/api/v1/admin
+/api/v1/companies
+46. Authentication APIs
+
+Examples:
+
+POST /auth/register
+
+POST /auth/login
+
+POST /auth/email-otp
+
+POST /auth/verify-otp
+
+POST /auth/google
+
+POST /auth/github
+
+POST /auth/forgot-password
+
+POST /auth/reset-password
+
+POST /auth/logout
+
+POST /auth/refresh
+47. Resume APIs
+POST /resume/upload
+
+GET /resume
+
+DELETE /resume/:id
+
+POST /resume/analyze
+
+POST /resume/compare
+48. ATS APIs
+POST /ats/analyze
+
+GET /ats/history
+
+GET /ats/:id
+49. Interview APIs
+POST /interview/start
+
+POST /interview/next-question
+
+POST /interview/answer
+
+POST /interview/end
+
+GET /interview/history
+
+GET /interview/report/:id
+50. Coding APIs
+GET /coding/problems
+
+POST /coding/run
+
+POST /coding/submit
+
+GET /coding/history
+51. Analytics APIs
+GET /analytics/dashboard
+
+GET /analytics/progress
+
+GET /analytics/streak
+
+GET /analytics/heatmap
+
+GET /analytics/readiness
+52. Admin APIs
+
+Protected by role-based access control.
+
+GET /admin/users
+
+GET /admin/statistics
+
+GET /admin/logs
+
+GET /admin/errors
+
+GET /admin/system-health
+
+PATCH /admin/feature-flags
+53. Security Requirements
+
+The platform must implement:
+
+Authentication
+JWT Access Token
+Refresh Token Rotation
+Email OTP
+Google OAuth
+GitHub OAuth
+Password Security
+Argon2 (preferred) or bcrypt
+Strong password policy
+Password reset via OTP
+API Security
+Rate limiting
+Helmet
+CORS
+Input validation
+Zod validation
+SQL injection protection
+XSS protection
+File Upload Security
+
+Only allow:
+
+PDF
+DOCX
+
+Maximum size:
+
+10 MB
+
+Virus scanning should be considered for future versions.
+
+Role-Based Access
+
+Roles:
+
+Guest
+
+↓
+
+User
+
+↓
+
+Administrator
+
+Administrator access must never be assignable from the frontend.
+
+54. Redis Usage
+
+Redis will be used for:
+
+Email OTP storage
+Session management
+Refresh token blacklist
+API rate limiting
+AI response caching
+Frequently accessed company data
+55. Logging
+
+Application logs:
+
+Login
+Logout
+Resume upload
+Interview start
+Interview completion
+Coding submissions
+Admin actions
+API errors
+
+Future integration:
+
+Winston or Pino
+Sentry for error tracking
+56. Deployment Architecture
+React
+   │
+   ▼
+Vercel
+
+↓
+
+Express API
+
+↓
+
+Railway / Render / Fly.io
+
+↓
+
+Neon PostgreSQL
+
+↓
+
+Redis
+
+↓
+
+Cloudinary
+
+↓
+
+Gemini
+
+↓
+
+Judge0
+
+↓
+
+Whisper
+
+↓
+
+ElevenLabs
+57. Environment Variables
+
+Examples:
+
+DATABASE_URL=
+
+REDIS_URL=
+
+JWT_SECRET=
+
+JWT_REFRESH_SECRET=
+
+RESEND_API_KEY=
+
+GOOGLE_CLIENT_ID=
+
+GOOGLE_CLIENT_SECRET=
+
+GITHUB_CLIENT_ID=
+
+GITHUB_CLIENT_SECRET=
+
+GEMINI_API_KEY=
+
+ELEVENLABS_API_KEY=
+
+TAVILY_API_KEY=
+
+JUDGE0_API_KEY=
+
+CLOUDINARY_URL=
+
+Secrets must never be committed to Git.
+
+58. Docker
+
+Provide:
+
+Dockerfile
+
+docker-compose.yml
+
+Services:
+
+Frontend
+Backend
+PostgreSQL (local)
+Redis
+
+This allows contributors to start the entire stack with a single command.
+
+59. Coding Standards
+Backend
+TypeScript strict mode
+ESLint
+Prettier
+Repository pattern
+Dependency injection where appropriate
+Async/await
+Comprehensive error handling
+Frontend
+Functional components
+Hooks
+Feature-based folder organization
+Reusable UI components
+Accessibility-first design
+Lazy loading for large routes
+Database
+Prisma migrations
+Soft deletes where appropriate
+UUID primary keys
+Timestamps on all major tables
+Foreign key constraints
+60. Testing Strategy
+Backend
+Unit Tests
+Integration Tests
+API Tests
+Frontend
+Component Tests
+End-to-End Tests
+
+Critical workflows:
+
+Registration
+Login
+OTP verification
+Resume upload
+ATS analysis
+Interview flow
+Coding submission
+61. Monitoring & Health
+
+Expose:
+
+/health
+
+/ready
+
+/version
+
+Health checks include:
+
+Database connectivity
+Redis connectivity
+AI provider availability (basic check)
+Storage availability
+62. Future Roadmap (Out of Scope for v1)
+
+These are intentionally not part of the first release but should be considered in the architecture:
+
+Subscription billing
+Premium plans
+Recruiter payment portal
+Live interviewer collaboration
+Real-time pair programming
+Mobile applications
+Multi-language UI
+Webcam emotion analysis
+AI-generated certificates
+Calendar integrations
+63. Final Development Principles
+
+Every feature must satisfy these principles:
+
+Mobile-first and responsive.
+Accessible where practical.
+Secure by default.
+Modular and maintainable.
+Well-documented.
+Tested.
+Production-ready.
+Consistent UI/UX.
+Clear error handling.
+Scalable architecture.
+End of Part 4
+
+At this point, we have defined the complete architecture:
+
+Product vision
+AI architecture
+User flows
+Modules
+Database
+APIs
+Security
+Deployment
+Coding standards

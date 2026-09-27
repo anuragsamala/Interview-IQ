@@ -1,0 +1,366 @@
+Part 2 – AI Architecture & Core Intelligence
+
+Project Name: InterviewIQ AI
+
+Version: 1.0
+
+11. AI Architecture Overview
+Purpose
+
+The Artificial Intelligence layer is the heart of InterviewIQ AI.
+
+Rather than making a single LLM call for every request, the platform will use a Multi-Agent AI Architecture coordinated by an AI Orchestration Layer.
+
+This makes the platform:
+
+Modular
+Easier to maintain
+Easier to scale
+Easier to replace AI providers
+More accurate
+Cost-efficient
+12. AI Orchestration Layer
+Objective
+
+Every AI request first passes through the AI Orchestrator.
+
+The orchestrator is responsible for:
+
+Selecting the correct AI agent
+Managing prompts
+Passing context
+Maintaining conversation history
+Caching reusable responses
+Tracking token usage
+Logging AI interactions
+Handling retries
+Falling back when an AI provider is unavailable
+
+The frontend never communicates directly with Gemini or other AI providers.
+13. AI Providers
+Primary Provider
+Gemini 2.5 Pro
+
+Responsibilities:
+
+Resume Analysis
+ATS Analysis
+Interview Generation
+Follow-up Questions
+Feedback
+Learning Plans
+Behavioral Analysis
+Company Interview Preparation
+Recruiter Reports
+Speech Recognition
+Whisper
+
+Responsibilities:
+
+Convert voice to text
+Improve transcript accuracy
+Handle long conversations
+Support interview transcription
+AI Voice
+ElevenLabs
+
+Responsibilities:
+
+AI interviewer voice
+Natural conversation
+Different interviewer personalities
+Professional voice quality
+Company Knowledge
+Tavily
+
+Responsibilities:
+
+Research companies
+Recent interview trends
+Company hiring process
+Job requirements
+Technology stack insights
+Code Execution
+Judge0
+
+Responsibilities:
+
+Execute code
+Hidden test cases
+Runtime
+Memory usage
+Multi-language support
+14. AI Agents
+
+Instead of one huge AI prompt,
+
+InterviewIQ AI uses specialized agents.
+
+Resume Analysis Agent
+Responsibilities
+Parse resume
+Extract skills
+Extract education
+Extract experience
+Detect projects
+Detect certifications
+Identify weaknesses
+Identify missing information
+Suggest improvements
+Inputs
+Resume PDF/DOCX
+User profile
+Outputs
+Structured resume
+Skill list
+Resume score
+Recommendations
+ATS Optimization Agent
+Responsibilities
+
+Compare:
+
+Resume
+
+VS
+
+Job Description
+
+Generate:
+
+ATS Score
+Missing Keywords
+Missing Skills
+Resume Match Percentage
+Recruiter Suggestions
+Section-wise Improvement Tips
+Interview Generation Agent
+
+Generates interviews based on:
+
+Resume
+Company
+Job Description
+Difficulty
+Previous Performance
+Weak Topics
+Selected Interview Type
+
+Supports:
+
+HR
+Technical
+Coding
+Behavioral
+System Design
+Aptitude
+Custom Interviews
+Adaptive Follow-up Agent
+
+Unlike fixed interview platforms,
+
+this agent listens to every answer.
+
+Then:
+
+Good answer
+↓
+
+Harder follow-up
+
+Average answer
+↓
+
+Medium follow-up
+
+Poor answer
+↓
+
+Simplified follow-up
+
+This creates a realistic interviewer experience.
+
+Communication Analysis Agent
+
+Analyzes:
+
+Grammar
+Speaking speed
+Filler words
+Confidence estimation (speech patterns only)
+Vocabulary
+Clarity
+Relevance
+Answer completeness
+
+Produces:
+
+Communication Score
+
+Coding Review Agent
+
+After code submission,
+
+analyzes:
+
+Correctness
+Readability
+Naming
+Time Complexity
+Space Complexity
+Edge Cases
+Best Practices
+Interview Quality
+
+Provides:
+
+Recruiter-style review.
+
+Learning Plan Agent
+
+Uses:
+
+Interview History
+
+Coding History
+
+ATS History
+
+Weak Topics
+
+Creates:
+
+Daily Plan
+
+Weekly Plan
+
+Monthly Plan
+
+Roadmap
+
+Recommended Questions
+
+Recommended Resources
+
+Company Research Agent
+
+Uses Tavily.
+
+Collects:
+
+Company Overview
+Interview Experience
+Hiring Pattern
+Technologies Used
+Frequently Asked Questions
+Important Topics
+
+Generates:
+
+Company Preparation Sheet
+
+Recruiter Report Agent
+
+Generates a professional report.
+
+Includes:
+
+Interview Score
+
+Coding Score
+
+Communication
+
+Confidence
+
+Strengths
+
+Weaknesses
+
+Hiring Recommendation
+
+Overall Rating
+
+15. AI Memory System
+
+InterviewIQ AI remembers previous sessions.
+
+Stores:
+
+Previous Interviews
+Weak Topics
+Strong Topics
+Coding Performance
+ATS Reports
+Learning Plans
+User Preferences
+
+Every new interview becomes personalized.
+
+16. AI Prompt Management
+
+Each agent has its own version-controlled prompt template.
+
+Benefits:
+
+Easy updates
+Consistent responses
+Testing different prompt versions
+Reusable across modules
+
+Prompt templates are stored in the backend, not hardcoded throughout the application.
+
+17. AI Context Builder
+
+Before any AI request, the backend assembles only the information relevant to that task.
+
+Examples:
+
+Resume Review
+Resume
+Job Description
+Selected Role
+Interview
+Resume
+Previous Interview Summary
+Company
+Difficulty
+Weak Topics
+Learning Plan
+ATS Results
+Coding History
+Interview Scores
+User Goals
+
+This keeps prompts focused, reduces token usage, and improves response quality.
+
+18. AI Response Processing
+
+After an AI provider returns a response, the backend:
+
+Validates the response format.
+Converts it into structured JSON where possible.
+Stores summaries in PostgreSQL.
+Caches reusable data in Redis.
+Sends only the required information to the frontend.
+19. AI Error Handling
+
+The platform should gracefully handle:
+
+AI timeouts
+Invalid responses
+Rate limits
+Provider downtime
+Network failures
+
+If an AI service is temporarily unavailable, the user receives a friendly message and can retry without losing their interview progress.
+
+20. AI Privacy & Data Handling
+
+The platform should:
+
+Clearly inform users when AI services process uploaded resumes or interview transcripts.
+Avoid storing sensitive raw AI responses unless needed.
+Allow users to delete their interview history and uploaded documents.
+Store API keys securely using environment variables.
+Never expose API keys to the frontend

@@ -1,0 +1,367 @@
+📘 IMPLEMENTATION PROMPT (Part 5)
+
+Title: Build InterviewIQ AI – Production-Grade AI Interview Preparation Platform
+
+Role
+
+You are an expert team consisting of:
+
+Senior Software Architect
+Senior React Developer
+Senior Backend Engineer
+Senior AI Engineer
+Senior Database Engineer
+Senior UI/UX Designer
+Senior DevOps Engineer
+Senior Security Engineer
+Senior QA Engineer
+
+Your responsibility is to build a complete production-quality SaaS application according to the provided Master Project Specification (SRS).
+
+The SRS is the single source of truth.
+
+Do not ignore, simplify, or replace any architectural decision unless technically impossible.
+
+Primary Goal
+
+Build InterviewIQ AI, a modern AI-powered interview preparation platform.
+
+The project must be:
+
+Production-ready
+Highly scalable
+Mobile responsive
+Clean architecture
+Professional UI
+Enterprise-level code quality
+
+This is not a prototype or MVP with placeholders. Every implemented feature should be functional unless an external paid API is unavailable.
+
+Development Strategy
+
+Develop the project module by module.
+
+The order should be:
+
+Phase 1
+
+Project setup
+
+React + TypeScript + Vite
+Tailwind CSS
+shadcn/ui
+Radix UI
+Framer Motion
+Magic UI
+Aceternity UI
+React Bits
+Express
+Prisma
+PostgreSQL
+Redis
+
+Do not begin feature development before the project foundation is complete.
+
+Phase 2
+
+Authentication
+
+Implement:
+
+Email registration
+Email verification
+Email OTP using Resend
+Login
+Google OAuth
+GitHub OAuth
+Password reset
+JWT
+Refresh tokens
+Protected routes
+Session management
+Phase 3
+
+User Profile
+
+Implement:
+
+User profile
+Skills
+Experience
+Resume history
+Preferences
+Profile settings
+Phase 4
+
+Resume Module
+
+Implement:
+
+Resume upload
+Resume parser
+Resume history
+Resume comparison
+Resume versioning
+Resume analysis
+Phase 5
+
+ATS Scanner
+
+Implement:
+
+Job description upload
+ATS score
+Keyword analysis
+Missing skills
+Recruiter suggestions
+Resume improvements
+Phase 6
+
+Interview Platform
+
+Implement:
+
+Voice interviews
+Whisper
+Gemini
+ElevenLabs
+Adaptive questioning
+AI memory
+Interview reports
+Phase 7
+
+Coding Platform
+
+Implement:
+
+Monaco Editor
+Judge0
+Hidden test cases
+AI hints
+AI explanation
+Recruiter review
+Phase 8
+
+Analytics
+
+Implement:
+
+Dashboard
+Charts
+Progress
+Heatmaps
+Radar charts
+Readiness score
+Phase 9
+
+Learning Module
+
+Implement:
+
+Daily plans
+Weekly plans
+AI roadmap
+Weak topics
+Recommended practice
+Phase 10
+
+Admin Dashboard
+
+Only administrator can access.
+
+Implement:
+
+User management
+AI statistics
+Logs
+OTP monitoring
+Feature flags
+Platform health
+AI Architecture
+
+Never call Gemini directly from business modules.
+
+All AI requests must go through the AI Orchestration Layer.
+
+Create specialized AI Agents:
+
+Resume Agent
+ATS Agent
+Interview Agent
+Follow-up Agent
+Coding Review Agent
+Communication Analysis Agent
+Learning Agent
+Company Research Agent
+Recruiter Report Agent
+
+Each agent must have:
+
+Dedicated prompt template
+Separate service
+Reusable interface
+UI Requirements
+
+The UI should resemble premium SaaS products.
+
+Inspirations:
+
+ChatGPT
+Vercel
+Stripe
+Linear
+Clerk
+GitHub
+
+Use:
+
+Glassmorphism where appropriate
+Soft shadows
+Smooth animations
+Modern typography
+Consistent spacing
+Skeleton loaders
+Empty states
+Error states
+
+Dark mode by default.
+
+Coding Rules
+TypeScript
+
+Never use:
+
+any
+
+Unless technically unavoidable.
+
+Prefer:
+
+Interfaces
+Generics
+Strong typing
+React
+
+Use:
+
+Functional components
+Hooks
+Feature folders
+Lazy loading
+Reusable components
+
+Avoid duplicated code.
+
+Backend
+
+Controllers must:
+
+Validate requests
+Call services
+Return responses
+
+Controllers must never contain business logic.
+
+Business logic belongs inside services.
+
+Database
+
+Use:
+
+Prisma migrations
+UUIDs
+Foreign keys
+Soft deletes where appropriate
+Transactions for critical operations
+API Design
+
+RESTful
+
+Versioned
+
+/api/v1/
+
+Use:
+
+Proper HTTP status codes
+Consistent response format
+Pagination
+Filtering
+Validation
+Security
+
+Implement:
+
+JWT
+Refresh Tokens
+Rate limiting
+Helmet
+CORS
+Zod validation
+SQL Injection prevention
+XSS protection
+Secure file uploads
+
+Never expose secrets.
+
+Performance
+
+Optimize:
+
+React rendering
+Database queries
+Redis caching
+AI response caching
+Lazy loading
+Image optimization
+Accessibility
+
+Implement:
+
+Keyboard navigation
+Proper labels
+Semantic HTML
+Screen reader compatibility
+Contrast compliance
+Documentation
+
+Generate:
+
+README
+API Documentation
+Swagger/OpenAPI
+Environment setup guide
+Deployment guide
+Docker setup
+Git
+
+Write code as if working in a professional engineering team.
+
+Maintain:
+
+Clear module separation
+Readable file names
+Meaningful comments only where necessary
+
+Avoid large monolithic files.
+
+Deliverables
+
+The final project should include:
+
+Fully functional frontend
+Fully functional backend
+Database migrations
+Docker configuration
+API documentation
+Environment template
+README
+Deployment guide
+Testing setup
+Final Instruction
+
+Do not simplify the project because of its size.
+
+If the project exceeds a single generation, continue building module by module while maintaining complete consistency with the Master Project Specification.
+
+The goal is to produce a professional AI interview platform that could realistically be deployed as a SaaS product.

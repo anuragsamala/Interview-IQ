@@ -1,0 +1,287 @@
+📘 MASTER PROJECT SPECIFICATION (SRS)
+Part 1 — Vision, Requirements & System Architecture
+
+Project Name: InterviewIQ AI
+
+Version: 1.0
+
+Document Type: Software Requirements Specification (SRS)
+
+Prepared For: Major Project & Startup MVP
+
+1. Executive Summary
+Project Overview
+
+InterviewIQ AI is a next-generation AI-powered interview preparation platform designed to help students, fresh graduates, job seekers, and professionals prepare for technical, HR, behavioral, coding, aptitude, and system design interviews through personalized, AI-driven learning experiences.
+
+Unlike existing interview platforms that offer static question banks or basic mock interviews, InterviewIQ AI delivers dynamic interviews that adapt to each user's responses, analyzes resumes against job descriptions, provides recruiter-style feedback, tracks progress over time, and generates personalized preparation roadmaps.
+
+The platform combines Large Language Models (LLMs), speech processing, online code execution, analytics, and modern web technologies to create a realistic interview environment that mirrors real hiring processes.
+
+The project is intended to serve three goals:
+
+A polished college major project.
+A resume-quality portfolio project.
+A scalable SaaS foundation that can evolve into a production product.
+2. Vision Statement
+
+Our vision is to build an AI interview coach that feels like having a personal recruiter available 24/7.
+
+The platform should:
+
+Prepare candidates for interviews at startups, service companies, and product companies.
+Adapt interviews dynamically based on performance.
+Continuously learn from a user's history.
+Help users improve rather than simply evaluate them.
+Deliver recruiter-quality reports after every session.
+3. Problem Statement
+
+Candidates often face several challenges:
+
+They don't know what questions companies ask.
+They lack realistic interview practice.
+They receive no meaningful feedback.
+Resume optimization is difficult.
+Existing ATS scanners are limited.
+Coding platforms don't simulate interviews.
+HR interviews are difficult to practice.
+There is no single platform combining resume analysis, AI interviews, coding assessments, and learning recommendations.
+
+InterviewIQ AI addresses these issues through one integrated platform.
+
+4. Goals & Objectives
+Primary Goals
+Build an intelligent interview preparation platform.
+Simulate realistic interview experiences.
+Improve interview confidence.
+Increase resume quality.
+Help users track measurable improvement.
+Secondary Goals
+Provide recruiter-style reports.
+Create personalized learning plans.
+Support multiple interview categories.
+Offer company-specific preparation.
+Enable continuous skill tracking.
+5. Target Users
+Student
+Campus placements
+Internships
+Entry-level roles
+Graduate
+Software engineer interviews
+Data analyst interviews
+AI/ML interviews
+Cybersecurity interviews
+Experienced Professional
+Role switching
+Promotion preparation
+Leadership interviews
+Recruiter (Future)
+Review candidate performance
+Compare interview reports
+Manage assessments
+Administrator
+Platform management
+User management
+Analytics
+AI usage monitoring
+System configuration
+6. User Roles
+Guest
+
+Can:
+
+Browse landing pages.
+View features.
+Read blogs.
+Explore pricing (future).
+Register/Login.
+
+Cannot:
+
+Access interviews.
+Use AI features.
+View analytics.
+Registered User
+
+Can:
+
+Manage profile.
+Upload resume.
+Upload job descriptions.
+Take interviews.
+Solve coding challenges.
+View analytics.
+Download reports.
+Receive AI feedback.
+Generate learning plans.
+Super Administrator
+
+Only one administrator account (you).
+
+Can:
+
+Manage users.
+Suspend users.
+View AI usage.
+View interview statistics.
+Monitor platform health.
+Access audit logs.
+Manage feature flags.
+Configure AI providers.
+Manage company question banks.
+
+No other user can gain administrator privileges through the application.
+
+7. Functional Requirements
+Authentication
+Email/password registration
+Email verification
+Email OTP login
+Google OAuth
+GitHub OAuth
+Password reset
+Session management
+JWT access tokens
+Refresh tokens
+Device management
+Logout from all devices
+Resume Module
+PDF upload
+DOCX upload
+Resume parsing
+Resume storage
+Resume version history
+Resume comparison
+ATS score generation
+Resume recommendations
+Skill extraction
+ATS Scanner
+Compare resume with job description
+Keyword matching
+Missing skills
+Grammar review
+Formatting suggestions
+ATS compatibility score
+Recruiter likelihood score
+Resume improvement suggestions
+AI Interview Module
+
+Supports:
+
+HR Interviews
+Technical Interviews
+Coding Interviews
+Behavioral Interviews
+Aptitude Assessments
+System Design Interviews
+Group Discussion Simulations
+Company-Specific Interviews
+Custom Interviews
+
+Features:
+
+Voice conversation
+AI voice responses
+Dynamic questioning
+Follow-up questions
+Adaptive difficulty
+Interview memory
+Real-time scoring
+Coding Interview Module
+Monaco Editor
+Multi-language support
+Judge0 execution
+Hidden test cases
+AI hints
+AI code review
+Complexity analysis
+Runtime analysis
+Memory usage analysis
+Recruiter report
+Learning Module
+Personalized roadmap
+Daily goals
+Weekly goals
+Weak topic identification
+Recommended practice questions
+Interview readiness score
+Analytics
+ATS trends
+Coding trends
+Interview trends
+Communication trends
+Progress graphs
+Heatmaps
+Radar charts
+Achievement badges
+Streak tracking
+8. Non-Functional Requirements
+Performance
+Initial page load under 3 seconds.
+API response under 500 ms for standard requests.
+AI responses streamed where possible to improve perceived latency.
+Scalability
+Modular architecture that can later evolve into microservices.
+Stateless backend with Redis for shared session and cache management.
+Security
+JWT authentication with refresh tokens.
+Password hashing using Argon2 or bcrypt.
+OTP expiration and rate limiting.
+Input validation.
+Secure file uploads.
+Role-based access control.
+Audit logging for admin actions.
+Reliability
+Graceful error handling.
+Retry strategies for external AI providers.
+Health check endpoints.
+Structured logging.
+Accessibility
+Keyboard navigation.
+Proper semantic HTML.
+Sufficient color contrast.
+Screen reader support for core workflows.
+9. Technology Stack
+Frontend
+React + TypeScript + Vite
+Tailwind CSS
+shadcn/ui
+Radix UI
+Framer Motion
+Magic UI
+Aceternity UI
+React Bits
+TanStack Query
+TanStack Table
+React Hook Form
+Zod
+Monaco Editor
+Recharts
+Backend
+Node.js
+Express.js
+TypeScript
+Prisma ORM
+Database
+PostgreSQL (Neon for managed hosting)
+Cache & Background Services
+Redis
+Authentication
+Email/password
+Google OAuth
+GitHub OAuth
+Email OTP via Resend
+JWT access and refresh tokens
+AI & Integrations
+Gemini 2.5 Pro
+Whisper (speech-to-text)
+ElevenLabs (text-to-speech)
+Tavily (company research)
+Judge0 (code execution)
+Storage
+Cloudinary (or S3-compatible storage)
+Deployment
+Frontend: Vercel
+Backend: Railway / Render / Fly.io
+Docker for local development and production packaging
