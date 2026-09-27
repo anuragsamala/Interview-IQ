@@ -11,9 +11,13 @@ interface ApiOptions extends RequestInit {
   skipAuth?: boolean;
 }
 
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
+
 export async function apiFetch(path: string, options: ApiOptions = {}): Promise<any> {
   const { skipAuth = false, ...fetchOptions } = options;
-  const url = path.startsWith('/') ? path : `/api/v1/${path}`;
+  const url = path.startsWith('http')
+    ? path
+    : `${API_BASE}${path.startsWith('/') ? path : `/api/v1/${path}`}`;
 
   // Attach headers
   const headers = new Headers(fetchOptions.headers || {});
@@ -74,7 +78,7 @@ async function refreshSession(): Promise<string | null> {
 
   refreshPromise = (async () => {
     try {
-      const res = await fetch('/api/v1/auth/refresh', {
+      const res = await fetch(`${API_BASE}/api/v1/auth/refresh`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
       });
