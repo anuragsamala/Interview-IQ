@@ -5,20 +5,18 @@ import type { ExecutionResult } from '../coding/code-executor.js';
 dotenv.config();
 
 const API_KEY = process.env.GEMINI_API_KEY || '';
-// Google AI Studio keys typically start with AIzaSy. Keys starting with AQ. are OAuth tokens and return 401 with GenerativeLanguage API.
 const isValidKey = Boolean(
   API_KEY &&
   API_KEY !== 'gemini-api-key' &&
-  !API_KEY.startsWith('AQ.') &&
   API_KEY.trim().length > 15
 );
 
 const genAI = isValidKey ? new GoogleGenerativeAI(API_KEY) : null;
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-2.5-flash';
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
 
 if (!isValidKey && API_KEY) {
   console.warn(
-    'Notice: GEMINI_API_KEY does not appear to be a standard Google AI Studio key (usually starts with "AIzaSy"). Using intelligent dynamic fallback engine until a valid key is provided.'
+    'Notice: GEMINI_API_KEY is missing or invalid. Using intelligent dynamic fallback engine until a key is configured.'
   );
 }
 

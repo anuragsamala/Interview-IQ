@@ -8,6 +8,7 @@ const db_js_1 = __importDefault(require("../config/db.js"));
 const gemini_service_js_1 = require("../ai/gemini.service.js");
 const striver_sheet_data_js_1 = require("./striver-sheet-data.js");
 const company_tags_js_1 = require("./company-tags.js");
+const code_executor_js_1 = require("./code-executor.js");
 class CodingService {
     static async getProblems() {
         let existingProblems = await db_js_1.default.codingProblem.findMany({
@@ -44,14 +45,27 @@ class CodingService {
         const problem = await db_js_1.default.codingProblem.findUnique({ where: { id: problemId } });
         if (!problem)
             throw new Error("Problem not found");
-        // 1. Simulate Judge0 Execution
-        const isAccepted = code.trim().length > 20;
-        const status = isAccepted ? 'ACCEPTED' : 'WRONG_ANSWER';
-        const runtime = isAccepted ? Math.floor(Math.random() * 50) + 20 : null; // ms
-        const memory = isAccepted ? Math.floor(Math.random() * 1000) + 2000 : null; // kb
-        // 2. Evaluate Code Quality via Gemini
-        const evaluation = await gemini_service_js_1.GeminiService.evaluateCodeQuality(problem.description, code, language);
-        // 3. Save Submission
+        // 1. Gather all test cases (from database + sample input/output)
+        const testCases = [];
+        if (Array.isArray(problem.testCases)) {
+            testCases.push(...problem.testCases);
+        }
+        if (problem.sampleInput && problem.sampleOutput) {
+            const alreadyHasSample = testCases.some(tc => tc.input === problem.sampleInput);
+            if (!alreadyHasSample) {
+                testCases.unshift({ input: problem.sampleInput, expected: problem.sampleOutput });
+            }
+        }
+        // 2. Real Sandboxed Execution
+        const execution = code_executor_js_1.CodeExecutor.executeJs(code, testCases.length > 0 ? testCases : [
+            { input: problem.sampleInput || '', expected: problem.sampleOutput || '' }
+        ]);
+        const status = execution.status;
+        const runtime = execution.runtime;
+        const memory = execution.memory;
+        // 3. Evaluate Code Quality & Complexity
+        const evaluation = await gemini_service_js_1.GeminiService.evaluateCodeQuality(problem.description, code, language, execution);
+        // 4. Save Submission
         const submission = await db_js_1.default.codingSubmission.create({
             data: {
                 userId,
@@ -63,7 +77,7 @@ class CodingService {
                 memory
             }
         });
-        // 4. Save Feedback
+        // 5. Save Feedback
         const feedback = await db_js_1.default.codingFeedback.create({
             data: {
                 submissionId: submission.id,
@@ -75,7 +89,9 @@ class CodingService {
         });
         return {
             submission,
-            feedback
+            feedback,
+            testResults: execution.testResults,
+            errorMessage: execution.errorMessage
         };
     }
     static async getHistory(userId) {
