@@ -37,20 +37,19 @@ class AuthService {
         // Hash password
         const salt = await bcryptjs_1.default.genSalt(10);
         const passwordHash = await bcryptjs_1.default.hash(passwordPlain, salt);
-        // Create User record and initial profile
+        // Create User record and initial profile (auto-verified for seamless signup)
         const user = await users_service_js_1.UsersService.createUser({
             email,
             passwordHash,
             name,
-            isEmailVerified: false,
+            isEmailVerified: true,
         });
-        // Send verification OTP
-        const code = await this.sendVerificationOtp(user.id, user.email, 'EMAIL_VERIFICATION');
+        const session = await this.createSession(user.id, user.email, user.role);
         return {
-            userId: user.id,
-            email: user.email,
-            otpCode: code,
-            message: 'Registration successful. Verification code generated.',
+            user: session.user,
+            accessToken: session.accessToken,
+            refreshToken: session.refreshToken,
+            message: 'Registration successful',
         };
     }
     // Generate and dispatch OTP code
@@ -132,9 +131,7 @@ class AuthService {
             throw new Error('Invalid email or password');
         }
         if (!user.isEmailVerified) {
-            // Re-trigger verification OTP
-            await this.sendVerificationOtp(user.id, user.email, 'EMAIL_VERIFICATION');
-            throw new Error('Email verification required. A new OTP has been sent to your email.');
+            await users_service_js_1.UsersService.verifyEmail(user.id);
         }
         // Generate sessions and token pairs
         return this.createSession(user.id, user.email, user.role);

@@ -49,22 +49,21 @@ export class AuthService {
     const salt = await bcrypt.genSalt(10);
     const passwordHash = await bcrypt.hash(passwordPlain, salt);
 
-    // Create User record and initial profile
+    // Create User record and initial profile (auto-verified for seamless signup)
     const user = await UsersService.createUser({
       email,
       passwordHash,
       name,
-      isEmailVerified: false,
+      isEmailVerified: true,
     });
 
-    // Send verification OTP
-    const code = await this.sendVerificationOtp(user.id, user.email, 'EMAIL_VERIFICATION');
+    const session = await this.createSession(user.id, user.email, user.role);
 
     return {
-      userId: user.id,
-      email: user.email,
-      otpCode: code,
-      message: 'Registration successful. Verification code generated.',
+      user: session.user,
+      accessToken: session.accessToken,
+      refreshToken: session.refreshToken,
+      message: 'Registration successful',
     };
   }
 
@@ -162,9 +161,7 @@ export class AuthService {
     }
 
     if (!user.isEmailVerified) {
-      // Re-trigger verification OTP
-      await this.sendVerificationOtp(user.id, user.email, 'EMAIL_VERIFICATION');
-      throw new Error('Email verification required. A new OTP has been sent to your email.');
+      await UsersService.verifyEmail(user.id);
     }
 
     // Generate sessions and token pairs

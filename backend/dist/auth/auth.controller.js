@@ -13,8 +13,13 @@ class AuthController {
     static async register(req, res) {
         try {
             const validated = auth_validation_js_1.registerSchema.parse(req.body);
-            const result = await auth_service_js_1.AuthService.register(validated.email, validated.password, validated.name);
-            res.status(201).json(result);
+            const session = await auth_service_js_1.AuthService.register(validated.email, validated.password, validated.name);
+            res.cookie('refreshToken', session.refreshToken, COOKIE_OPTIONS);
+            res.status(201).json({
+                user: session.user,
+                accessToken: session.accessToken,
+                message: 'Registration successful',
+            });
         }
         catch (err) {
             if (err.name === 'ZodError') {

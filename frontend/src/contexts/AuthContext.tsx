@@ -82,11 +82,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const register = async (email: string, passwordPlain: string, name: string) => {
     setIsLoading(true);
     try {
-      return await apiFetch('auth/register', {
+      const data = await apiFetch('auth/register', {
         method: 'POST',
         body: JSON.stringify({ email, password: passwordPlain, name }),
         skipAuth: true,
       });
+
+      if (data.accessToken) {
+        setUser(data.user);
+        setAccessToken(data.accessToken);
+      }
+      return data;
     } finally {
       setIsLoading(false);
     }

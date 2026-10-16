@@ -20,8 +20,13 @@ export class AuthController {
   static async register(req: Request, res: Response) {
     try {
       const validated = registerSchema.parse(req.body);
-      const result = await AuthService.register(validated.email, validated.password, validated.name);
-      res.status(201).json(result);
+      const session = await AuthService.register(validated.email, validated.password, validated.name);
+      res.cookie('refreshToken', session.refreshToken, COOKIE_OPTIONS);
+      res.status(201).json({
+        user: session.user,
+        accessToken: session.accessToken,
+        message: 'Registration successful',
+      });
     } catch (err: any) {
       if (err.name === 'ZodError') {
         return res.status(400).json({ error: 'Validation Error', details: err.errors });
