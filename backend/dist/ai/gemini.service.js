@@ -12,22 +12,45 @@ const isValidKey = Boolean(API_KEY &&
     API_KEY !== 'gemini-api-key' &&
     API_KEY.trim().length > 15);
 const genAI = isValidKey ? new generative_ai_1.GoogleGenerativeAI(API_KEY) : null;
-const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-1.5-flash';
+const MODEL_NAME = process.env.GEMINI_MODEL || 'gemini-3.5-flash';
 if (!isValidKey && API_KEY) {
     console.warn('Notice: GEMINI_API_KEY is missing or invalid. Using intelligent dynamic fallback engine until a key is configured.');
 }
 class GeminiService {
     /**
+     * Resilient Gemini invocation with automatic fallback between fast models
+     */
+    static async callGemini(prompt, isJson = false) {
+        if (!genAI)
+            return null;
+        const candidateModels = [
+            process.env.GEMINI_MODEL,
+            'gemini-3.5-flash-lite',
+            'gemini-3.5-flash',
+        ].filter(Boolean);
+        const uniqueModels = Array.from(new Set(candidateModels));
+        for (const modelName of uniqueModels) {
+            try {
+                const model = genAI.getGenerativeModel({
+                    model: modelName,
+                    generationConfig: isJson ? { responseMimeType: 'application/json' } : undefined,
+                });
+                const result = await model.generateContent(prompt);
+                const text = result.response.text();
+                if (text)
+                    return text;
+            }
+            catch (err) {
+                console.warn(`Gemini model ${modelName} notice (${err?.status || err?.message || 'error'}). Trying fallback model...`);
+            }
+        }
+        return null;
+    }
+    /**
      * ATS Resume Compatibility Scanner
      */
     static async generateAtsReport(resumeText, jobDescription) {
-        if (genAI) {
-            try {
-                const model = genAI.getGenerativeModel({
-                    model: MODEL_NAME,
-                    generationConfig: { responseMimeType: 'application/json' },
-                });
-                const prompt = `
+        const prompt = `
 You are an expert ATS (Applicant Tracking System) scanner and technical recruiter.
 Analyze this resume against the job description and output a JSON report:
 {
@@ -45,11 +68,13 @@ Resume:
 Job Description:
 """${jobDescription}"""
 `;
-                const result = await model.generateContent(prompt);
-                return JSON.parse(result.response.text());
+        const text = await this.callGemini(prompt, true);
+        if (text) {
+            try {
+                return JSON.parse(text);
             }
-            catch (error) {
-                console.error('Gemini ATS Error, using dynamic fallback report:', error);
+            catch (e) {
+                console.error('Failed to parse Gemini ATS JSON:', e);
             }
         }
         return this.getDynamicAtsReport(resumeText, jobDescription);
@@ -113,12 +138,10 @@ Job Description:
     /**
      * Generates dynamic, context-aware interview questions
      */
-    static async generateInterviewQuestion(interviewType, role, company, difficulty, conversationHistory) {
-        if (genAI) {
-            try {
-                const model = genAI.getGenerativeModel({ model: MODEL_NAME });
-                const historyText = conversationHistory.map((m) => `${m.role.toUpperCase()}: ${m.text}`).join('\n\n');
-                const prompt = `
+    static async generateInterviewQuestion(interviewType, role, company, difficulty, conversationHistory = []) {
+        const history = conversationHistory || [];
+        const historyText = history.map((m) => `${(m.role || '').toUpperCase()}: ${m.text}`).join('\n\n');
+        const prompt = `
 You are an expert ${interviewType} interviewer for the role of ${role} at ${company}. The difficulty level is ${difficulty}.
 Based on the conversation history below, generate the next intelligent, customized interview question.
 If the candidate just answered a question, acknowledge their answer naturally and ask an insightful follow-up or move to the next relevant topic.
@@ -128,20 +151,15 @@ Keep the question concise, professional, and conversational. Output ONLY the int
 Conversation History:
 ${historyText || 'No history. This is the first question of the interview.'}
 `;
-                const result = await model.generateContent(prompt);
-                const text = result.response.text().trim();
-                if (text)
-                    return text;
-            }
-            catch (error) {
-                console.error('Gemini Question Error, using dynamic fallback:', error);
-            }
-        }
-        return this.getDynamicQuestion(interviewType, role, company, difficulty, conversationHistory);
+        const text = await this.callGemini(prompt, false);
+        if (text && text.trim())
+            return text.trim();
+        return this.getDynamicQuestion(interviewType, role, company, difficulty, history);
     }
-    static getDynamicQuestion(interviewType, role, company, difficulty, history) {
-        const turnIndex = history.filter((h) => h.role === 'interviewer').length;
-        const lastCandidateAnswer = history
+    static getDynamicQuestion(interviewType, role, company, difficulty, history = []) {
+        const safeHistory = history || [];
+        const turnIndex = safeHistory.filter((h) => h.role === 'interviewer').length;
+        const lastCandidateAnswer = safeHistory
             .filter((h) => h.role === 'candidate')
             .slice(-1)[0]?.text?.trim() || '';
         const roleLower = (role || 'software engineer').toLowerCase();
@@ -199,13 +217,7 @@ ${historyText || 'No history. This is the first question of the interview.'}
      * Generates comprehensive interview feedback and dynamic scores
      */
     static async generateInterviewFeedback(interviewType, role, difficulty, transcript) {
-        if (genAI) {
-            try {
-                const model = genAI.getGenerativeModel({
-                    model: MODEL_NAME,
-                    generationConfig: { responseMimeType: 'application/json' },
-                });
-                const prompt = `
+        const prompt = `
 You are an expert recruiter evaluating an interview transcript for a ${difficulty} ${interviewType} interview for a ${role} role.
 Analyze the candidate's performance across the entire conversation and provide a structured, in-depth evaluation in JSON format matching this exact schema:
 {
@@ -222,11 +234,13 @@ Analyze the candidate's performance across the entire conversation and provide a
 Interview Transcript:
 """${transcript}"""
 `;
-                const result = await model.generateContent(prompt);
-                return JSON.parse(result.response.text());
+        const text = await this.callGemini(prompt, true);
+        if (text) {
+            try {
+                return JSON.parse(text);
             }
-            catch (error) {
-                console.error('Gemini Feedback Error, using dynamic evaluation engine:', error);
+            catch (e) {
+                console.error('Failed to parse Gemini Feedback JSON:', e);
             }
         }
         return this.getDynamicFeedback(interviewType, role, difficulty, transcript);
@@ -304,13 +318,8 @@ Interview Transcript:
      * Evaluates code quality, runtime complexity, and test case outcomes
      */
     static async evaluateCodeQuality(problemDescription, code, language, execution) {
-        if (genAI && execution?.status === 'ACCEPTED') {
-            try {
-                const model = genAI.getGenerativeModel({
-                    model: MODEL_NAME,
-                    generationConfig: { responseMimeType: 'application/json' },
-                });
-                const prompt = `
+        if (execution?.status === 'ACCEPTED') {
+            const prompt = `
 You are an expert staff software engineer performing an insightful code review.
 Evaluate the following ${language} solution for this problem:
 Problem: ${problemDescription}
@@ -326,11 +335,14 @@ Analyze the code quality, runtime efficiency, and edge cases, and return a JSON 
   "feedbackText": <string with an actionable code review summary>
 }
 `;
-                const result = await model.generateContent(prompt);
-                return JSON.parse(result.response.text());
-            }
-            catch (error) {
-                console.error('Gemini Code Eval Error, using dynamic code analyzer:', error);
+            const text = await this.callGemini(prompt, true);
+            if (text) {
+                try {
+                    return JSON.parse(text);
+                }
+                catch (e) {
+                    console.error('Failed to parse Gemini Code Quality JSON:', e);
+                }
             }
         }
         return this.getDynamicCodeEval(code, language, execution);
@@ -420,13 +432,7 @@ Analyze the code quality, runtime efficiency, and edge cases, and return a JSON 
      * Generates dynamic, goal-driven career roadmaps for any target role
      */
     static async generateGoalBasedRoadmap(targetGoal, resumeText = '', weaknesses = []) {
-        if (genAI) {
-            try {
-                const model = genAI.getGenerativeModel({
-                    model: MODEL_NAME,
-                    generationConfig: { responseMimeType: 'application/json' },
-                });
-                const prompt = `
+        const prompt = `
 You are an expert technical mentor, career advisor, and hiring lead.
 The candidate's target career goal is: "${targetGoal}".
 
@@ -460,11 +466,13 @@ Return a JSON object matching this exact schema:
   ]
 }
 `;
-                const result = await model.generateContent(prompt);
-                return JSON.parse(result.response.text());
+        const text = await this.callGemini(prompt, true);
+        if (text) {
+            try {
+                return JSON.parse(text);
             }
-            catch (error) {
-                console.error('Gemini Goal Roadmap Error, using dynamic role engine:', error);
+            catch (e) {
+                console.error('Failed to parse Gemini Roadmap JSON:', e);
             }
         }
         return this.getDynamicGoalRoadmap(targetGoal, resumeText);
@@ -733,13 +741,7 @@ Return a JSON object matching this exact schema:
      * Evaluates AMCAT SpeechX assessment
      */
     static async evaluateSpeechXAssessment(responses) {
-        if (genAI) {
-            try {
-                const model = genAI.getGenerativeModel({
-                    model: MODEL_NAME,
-                    generationConfig: { responseMimeType: 'application/json' },
-                });
-                const prompt = `
+        const prompt = `
 You are an AMCAT SpeechX language assessment evaluator and spoken English coach.
 Evaluate the candidate's spoken responses across 4 communication modules (Sentence Repeat, Comprehension, Extempore Speech, Grammar Correction).
 
@@ -770,11 +772,13 @@ Return JSON matching this exact structure:
   "improvements": [<array of 3 specific actionable coaching points to improve speech fluency>]
 }
 `;
-                const result = await model.generateContent(prompt);
-                return JSON.parse(result.response.text());
+        const text = await this.callGemini(prompt, true);
+        if (text) {
+            try {
+                return JSON.parse(text);
             }
-            catch (error) {
-                console.error('Gemini SpeechX Eval Error, using dynamic fallback:', error);
+            catch (e) {
+                console.error('Failed to parse Gemini SpeechX JSON:', e);
             }
         }
         return this.getDynamicSpeechXEval(responses);
