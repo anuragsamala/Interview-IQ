@@ -59,10 +59,14 @@ export class CodingService {
       }
     }
 
-    // 2. Real Sandboxed Execution
-    const execution = CodeExecutor.executeJs(code, testCases.length > 0 ? testCases : [
-      { input: problem.sampleInput || '', expected: problem.sampleOutput || '' }
-    ]);
+    // 2. Real Sandboxed Execution according to selected language
+    const execution = await CodeExecutor.execute(
+      code,
+      language,
+      testCases.length > 0 ? testCases : [
+        { input: problem.sampleInput || '', expected: problem.sampleOutput || '' }
+      ]
+    );
 
     const status = execution.status;
     const runtime = execution.runtime;

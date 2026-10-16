@@ -56,8 +56,8 @@ class CodingService {
                 testCases.unshift({ input: problem.sampleInput, expected: problem.sampleOutput });
             }
         }
-        // 2. Real Sandboxed Execution
-        const execution = code_executor_js_1.CodeExecutor.executeJs(code, testCases.length > 0 ? testCases : [
+        // 2. Real Sandboxed Execution according to selected language
+        const execution = await code_executor_js_1.CodeExecutor.execute(code, language, testCases.length > 0 ? testCases : [
             { input: problem.sampleInput || '', expected: problem.sampleOutput || '' }
         ]);
         const status = execution.status;

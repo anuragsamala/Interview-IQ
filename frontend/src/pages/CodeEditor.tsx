@@ -19,10 +19,48 @@ interface CodeEditorProps {
   problemId: string;
 }
 
+const getStarterCode = (prob: any, lang: string): string => {
+  if (!prob) return '// Write your solution here\n';
+
+  const title = prob.title || '';
+  const cleanTitle = title.replace(/\(.*?\)/g, '').replace(/[^a-zA-Z0-9\s]/g, '').trim();
+  const words = cleanTitle.split(/\s+/).filter(Boolean);
+  const fnName = words.length > 0
+    ? words.map((w: string, i: number) => i === 0 ? w.toLowerCase() : w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join('')
+    : 'solution';
+
+  // Extract params from sampleInput: e.g. "nums = [2,7,11,15], target = 9" -> ['nums', 'target']
+  const paramMatches = prob.sampleInput ? prob.sampleInput.match(/([a-zA-Z_]\w*)\s*=/g) : null;
+  const params = paramMatches && paramMatches.length > 0
+    ? paramMatches.map((m: string) => m.replace('=', '').trim())
+    : ['nums', 'target'];
+
+  const paramsStr = params.join(', ');
+
+  switch (lang) {
+    case 'python':
+      return `# ${title}\n# Write your Python solution below\n\ndef ${fnName}(${paramsStr}):\n    # Write your logic here\n    pass\n`;
+
+    case 'java':
+      return `// ${title}\n// Write your Java solution below\n\nclass Solution {\n    public int[] ${fnName}(${params.map((p: string) => p.includes('target') ? 'int target' : 'int[] nums').join(', ')}) {\n        // Write your logic here\n        return new int[]{};\n    }\n}\n`;
+
+    case 'cpp':
+      return `// ${title}\n// Write your C++ solution below\n\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> ${fnName}(vector<int>& nums, int target) {\n        // Write your logic here\n        return {};\n    }\n};\n`;
+
+    case 'typescript':
+      return `/**\n * ${title}\n * Write your TypeScript solution below\n */\nfunction ${fnName}(${params.map((p: string) => `${p}: any`).join(', ')}): any {\n  // Write your logic here\n  \n}\n`;
+
+    case 'javascript':
+    default:
+      return `/**\n * ${title}\n * Write your JavaScript solution below\n */\nfunction ${fnName}(${paramsStr}) {\n  // Write your logic here\n  \n}\n`;
+  }
+};
+
 export default function CodeEditor({ onNavigate, problemId }: CodeEditorProps) {
   const [problem, setProblem] = useState<any>(null);
   const [code, setCode] = useState('// Write your solution here\nfunction solution() {\n  \n}\n');
   const [language, setLanguage] = useState('javascript');
+  const [codeByLanguage, setCodeByLanguage] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [result, setResult] = useState<any>(null);
@@ -37,10 +75,9 @@ export default function CodeEditor({ onNavigate, problemId }: CodeEditorProps) {
         const prob = data.find((p: any) => p.id === problemId);
         if (prob) {
           setProblem(prob);
-          // Set starter code if empty
-          if (prob.title.toLowerCase().includes('two sum')) {
-            setCode('function twoSum(nums, target) {\n  const map = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    const diff = target - nums[i];\n    if (map.has(diff)) return [map.get(diff), i];\n    map.set(nums[i], i);\n  }\n  return [];\n}\n');
-          }
+          const initialTemplate = getStarterCode(prob, language);
+          setCode(initialTemplate);
+          setCodeByLanguage({ [language]: initialTemplate });
         } else {
           setLoadError('Problem not found');
         }
@@ -52,6 +89,17 @@ export default function CodeEditor({ onNavigate, problemId }: CodeEditorProps) {
     };
     fetchProblem();
   }, [problemId]);
+
+  const handleLanguageChange = (newLang: string) => {
+    setLanguage(newLang);
+    if (codeByLanguage[newLang]) {
+      setCode(codeByLanguage[newLang]);
+    } else {
+      const template = getStarterCode(problem, newLang);
+      setCode(template);
+      setCodeByLanguage((prev) => ({ ...prev, [newLang]: template }));
+    }
+  };
 
   const handleSubmit = async () => {
     setSubmitting(true);
@@ -112,7 +160,7 @@ export default function CodeEditor({ onNavigate, problemId }: CodeEditorProps) {
         <div className="flex items-center gap-3">
           <select 
             value={language} 
-            onChange={e => setLanguage(e.target.value)}
+            onChange={e => handleLanguageChange(e.target.value)}
             className="bg-[#18181b] border border-white/10 rounded-lg px-3 py-1.5 text-xs text-neutral-300 focus:outline-none focus:border-sky-500"
           >
             <option value="javascript">JavaScript</option>
@@ -215,10 +263,14 @@ export default function CodeEditor({ onNavigate, problemId }: CodeEditorProps) {
           <div className={`transition-all duration-300 min-h-0 ${showResults ? 'h-1/2' : 'h-full'}`}>
             <Editor
               height="100%"
-              language={language}
+              language={language === 'cpp' ? 'cpp' : language}
               theme="vs-dark"
               value={code}
-              onChange={(val) => setCode(val || '')}
+              onChange={(val) => {
+                const updated = val || '';
+                setCode(updated);
+                setCodeByLanguage((prev) => ({ ...prev, [language]: updated }));
+              }}
               options={{
                 minimap: { enabled: false },
                 fontSize: 14,
