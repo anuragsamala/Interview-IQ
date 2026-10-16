@@ -275,12 +275,16 @@ export default function CodeEditor({ onNavigate, problemId }: CodeEditorProps) {
                     {/* Execution Outcome Badge */}
                     <div className="flex items-center justify-between flex-wrap gap-4 pb-4 border-b border-white/5">
                       <div className="flex items-center gap-3">
-                        {isAccepted ? (
+                        {result.submission?.status === 'ACCEPTED' ? (
                           <div className="flex items-center gap-2 text-emerald-400 font-extrabold text-base bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-500/20">
                             <CheckCircle2 className="w-5 h-5" /> Accepted
                           </div>
-                        ) : (
+                        ) : result.submission?.status === 'RUNTIME_ERROR' ? (
                           <div className="flex items-center gap-2 text-rose-400 font-extrabold text-base bg-rose-500/10 px-3 py-1.5 rounded-lg border border-rose-500/20">
+                            <AlertCircle className="w-5 h-5" /> Runtime / Syntax Error
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2 text-amber-400 font-extrabold text-base bg-amber-500/10 px-3 py-1.5 rounded-lg border border-amber-500/20">
                             <XCircle className="w-5 h-5" /> Wrong Answer
                           </div>
                         )}
@@ -288,11 +292,44 @@ export default function CodeEditor({ onNavigate, problemId }: CodeEditorProps) {
 
                       {result.submission && (
                         <div className="flex gap-4 text-xs text-neutral-400 bg-white/5 px-4 py-2 rounded-xl border border-white/5">
-                          <p>Runtime: <span className="text-sky-400 font-bold">{result.submission.runtime || 24} ms</span></p>
-                          <p>Memory: <span className="text-emerald-400 font-bold">{result.submission.memory || 2400} KB</span></p>
+                          <p>Runtime: <span className="text-sky-400 font-bold">{result.submission.runtime || 4} ms</span></p>
+                          <p>Memory: <span className="text-emerald-400 font-bold">{result.submission.memory || 4200} KB</span></p>
                         </div>
                       )}
                     </div>
+
+                    {/* Test Case Breakdown if available */}
+                    {result.testResults && result.testResults.length > 0 && (
+                      <div className="space-y-2">
+                        <p className="text-[11px] text-neutral-400 uppercase font-bold tracking-wider">Test Cases Validation</p>
+                        <div className="space-y-2">
+                          {result.testResults.map((tr: any, idx: number) => (
+                            <div key={idx} className={`p-3 rounded-xl border text-xs font-mono ${
+                              tr.passed
+                                ? 'bg-emerald-500/[0.04] border-emerald-500/20 text-emerald-300'
+                                : 'bg-rose-500/[0.04] border-rose-500/20 text-rose-300'
+                            }`}>
+                              <div className="flex items-center justify-between mb-1.5">
+                                <span className="font-bold flex items-center gap-1.5">
+                                  {tr.passed ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <XCircle className="w-4 h-4 text-rose-400" />}
+                                  Test Case #{idx + 1}: {tr.passed ? 'Passed' : 'Failed'}
+                                </span>
+                              </div>
+                              <p className="text-neutral-400"><span className="text-neutral-300 font-semibold">Input:</span> {tr.input}</p>
+                              <p className="text-neutral-400"><span className="text-neutral-300 font-semibold">Expected:</span> {tr.expected}</p>
+                              {tr.actual !== undefined && (
+                                <p className={tr.passed ? 'text-emerald-400' : 'text-rose-400'}>
+                                  <span className="text-neutral-300 font-semibold">Your Output:</span> {tr.actual}
+                                </p>
+                              )}
+                              {tr.error && (
+                                <p className="text-rose-400"><span className="font-semibold">Error:</span> {tr.error}</p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
 
                     {/* AI Code Review Block */}
                     {result.feedback && (

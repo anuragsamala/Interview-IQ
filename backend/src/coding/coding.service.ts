@@ -3,6 +3,8 @@ import { GeminiService } from '../ai/gemini.service.js';
 import { STRIVER_PROBLEMS } from './striver-sheet-data.js';
 import { getCompaniesForTitle } from './company-tags.js';
 
+import { CodeExecutor } from './code-executor.js';
+
 export class CodingService {
   static async getProblems() {
     let existingProblems = await prisma.codingProblem.findMany({
@@ -45,16 +47,36 @@ export class CodingService {
     const problem = await prisma.codingProblem.findUnique({ where: { id: problemId } });
     if (!problem) throw new Error("Problem not found");
 
-    // 1. Simulate Judge0 Execution
-    const isAccepted = code.trim().length > 20; 
-    const status = isAccepted ? 'ACCEPTED' : 'WRONG_ANSWER';
-    const runtime = isAccepted ? Math.floor(Math.random() * 50) + 20 : null; // ms
-    const memory = isAccepted ? Math.floor(Math.random() * 1000) + 2000 : null; // kb
+    // 1. Gather all test cases (from database + sample input/output)
+    const testCases: Array<{ input: string; expected: string }> = [];
+    if (Array.isArray(problem.testCases)) {
+      testCases.push(...(problem.testCases as any[]));
+    }
+    if (problem.sampleInput && problem.sampleOutput) {
+      const alreadyHasSample = testCases.some(tc => tc.input === problem.sampleInput);
+      if (!alreadyHasSample) {
+        testCases.unshift({ input: problem.sampleInput, expected: problem.sampleOutput });
+      }
+    }
 
-    // 2. Evaluate Code Quality via Gemini
-    const evaluation = await GeminiService.evaluateCodeQuality(problem.description, code, language);
+    // 2. Real Sandboxed Execution
+    const execution = CodeExecutor.executeJs(code, testCases.length > 0 ? testCases : [
+      { input: problem.sampleInput || '', expected: problem.sampleOutput || '' }
+    ]);
 
-    // 3. Save Submission
+    const status = execution.status;
+    const runtime = execution.runtime;
+    const memory = execution.memory;
+
+    // 3. Evaluate Code Quality & Complexity
+    const evaluation = await GeminiService.evaluateCodeQuality(
+      problem.description,
+      code,
+      language,
+      execution
+    );
+
+    // 4. Save Submission
     const submission = await prisma.codingSubmission.create({
       data: {
         userId,
@@ -67,7 +89,7 @@ export class CodingService {
       }
     });
 
-    // 4. Save Feedback
+    // 5. Save Feedback
     const feedback = await prisma.codingFeedback.create({
       data: {
         submissionId: submission.id,
@@ -80,7 +102,9 @@ export class CodingService {
 
     return {
       submission,
-      feedback
+      feedback,
+      testResults: execution.testResults,
+      errorMessage: execution.errorMessage
     };
   }
 
