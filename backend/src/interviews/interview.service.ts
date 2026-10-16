@@ -4,20 +4,24 @@ import { InterviewType } from '@prisma/client';
 
 export class InterviewService {
   static async startInterview(userId: string, type: string, company: string, role: string, difficulty: string) {
+    const effectiveRole = (role && role.trim()) ? role.trim() : 'Software Engineer';
+    const effectiveCompany = (company && company.trim()) ? company.trim() : 'Tech Company';
+    const effectiveDiff = difficulty || 'MEDIUM';
+
     const interview = await prisma.interview.create({
       data: {
         userId,
         type: type as InterviewType,
-        company,
-        role,
-        difficulty,
+        company: effectiveCompany,
+        role: effectiveRole,
+        difficulty: effectiveDiff,
         status: 'IN_PROGRESS',
       }
     });
 
     // Generate first question
     const questionText = await GeminiService.generateInterviewQuestion(
-      type, role, company, difficulty, []
+      type, effectiveRole, effectiveCompany, effectiveDiff, []
     );
 
     const question = await prisma.interviewQuestion.create({

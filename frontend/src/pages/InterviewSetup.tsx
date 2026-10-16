@@ -3,13 +3,13 @@ import { apiFetch } from '../services/api.ts';
 import {
   Sparkles,
   ArrowLeft,
-  Play,
   Briefcase,
   Building,
   Target,
   Loader2,
   Mic,
-  MessageSquare
+  MessageSquare,
+  Sparkle
 } from 'lucide-react';
 
 interface InterviewSetupProps {
@@ -19,10 +19,18 @@ interface InterviewSetupProps {
 export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
   const [type, setType] = useState('TECHNICAL');
   const [company, setCompany] = useState('');
-  const [role, setRole] = useState('');
+  const [role, setRole] = useState('Frontend Developer');
   const [difficulty, setDifficulty] = useState('MEDIUM');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const suggestedRoles = [
+    'Frontend Developer',
+    'Backend Engineer',
+    'Full Stack Developer',
+    'DevOps Engineer',
+    'Data Scientist'
+  ];
 
   const handleStart = async () => {
     if (type === 'SPEECHX') {
@@ -35,10 +43,21 @@ export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
     try {
       const data = await apiFetch('interviews/start', {
         method: 'POST',
-        body: JSON.stringify({ type, company, role, difficulty })
+        body: JSON.stringify({
+          type,
+          company: company.trim() || 'Tech Company',
+          role: role.trim() || 'Software Engineer',
+          difficulty
+        })
       });
       // Data contains { interview, question }
-      onNavigate('interview-session', { interviewId: data.interview.id, initialQuestion: data.question });
+      onNavigate('interview-session', { 
+        interviewId: data.interview.id, 
+        initialQuestion: data.question,
+        role: role.trim() || 'Software Engineer',
+        company: company.trim() || 'Tech Company',
+        interviewType: type
+      });
     } catch (err: any) {
       setError(err.message || 'Failed to start interview');
       setLoading(false);
@@ -46,10 +65,10 @@ export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
   };
 
   const types = [
-    { id: 'TECHNICAL', label: 'Technical Interview', desc: 'Core DSA, system engineering & code logic' },
-    { id: 'HR', label: 'HR & Behavioral', desc: 'Culture fit & STAR method responses' },
-    { id: 'SYSTEM_DESIGN', label: 'System Design', desc: 'Architecture, microservices & scaling' },
-    { id: 'SPEECHX', label: 'AMCAT SpeechX', desc: 'Spoken English, fluency & pronunciation test' }
+    { id: 'TECHNICAL', label: 'Technical Interview', desc: 'Core DSA, system engineering & code logic in interactive text chat' },
+    { id: 'HR', label: 'HR & Behavioral', desc: 'Culture fit & STAR method responses via conversational chat' },
+    { id: 'SYSTEM_DESIGN', label: 'System Design', desc: 'Architecture, microservices & scaling questions' },
+    { id: 'SPEECHX', label: 'AMCAT SpeechX', desc: 'Oral fluency, sentence repeat & voice pronunciation test' }
   ];
 
   return (
@@ -76,7 +95,9 @@ export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
           <h1 className="text-2xl md:text-3xl font-extrabold text-white flex items-center gap-3">
             <Target className="w-8 h-8 text-violet-400" /> Start AI Mock Session
           </h1>
-          <p className="text-sm text-neutral-400 mt-2">Configure your AI interviewer format or launch SpeechX spoken English assessment.</p>
+          <p className="text-sm text-neutral-400 mt-2">
+            Practice realistic interviews in focused text chat format, or launch SpeechX for oral English evaluation.
+          </p>
         </div>
 
         {error && (
@@ -90,19 +111,25 @@ export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
           <div>
             <label className="text-sm font-bold text-white mb-4 block">Interview Category</label>
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-              {types.map(t => (
+              {types.map((t) => (
                 <div
                   key={t.id}
                   onClick={() => setType(t.id)}
                   className={`p-4 rounded-xl border cursor-pointer transition-all ${
-                    type === t.id 
-                      ? 'bg-violet-500/10 border-violet-500/50 ring-1 ring-violet-500' 
+                    type === t.id
+                      ? 'bg-violet-500/10 border-violet-500/50 ring-1 ring-violet-500'
                       : 'border-white/5 hover:border-white/20 bg-white/5'
                   }`}
                 >
                   <div className="flex items-center gap-2 mb-1">
-                    {t.id === 'SPEECHX' ? <Mic className="w-4 h-4 text-amber-400" /> : <MessageSquare className="w-4 h-4 text-violet-400" />}
-                    <h4 className={`font-bold text-sm ${type === t.id ? 'text-violet-400' : 'text-neutral-300'}`}>{t.label}</h4>
+                    {t.id === 'SPEECHX' ? (
+                      <Mic className="w-4 h-4 text-amber-400" />
+                    ) : (
+                      <MessageSquare className="w-4 h-4 text-violet-400" />
+                    )}
+                    <h4 className={`font-bold text-sm ${type === t.id ? 'text-violet-400' : 'text-neutral-300'}`}>
+                      {t.label}
+                    </h4>
                   </div>
                   <p className="text-xs text-neutral-500 mt-1">{t.desc}</p>
                 </div>
@@ -121,11 +148,29 @@ export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
                   <input
                     type="text"
                     value={role}
-                    onChange={e => setRole(e.target.value)}
+                    onChange={(e) => setRole(e.target.value)}
                     placeholder="e.g. Frontend Developer"
-                    className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 transition-colors text-neutral-200"
+                    className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 transition-colors text-neutral-200 mb-2.5"
                   />
+                  {/* Quick role chips */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {suggestedRoles.map((sRole) => (
+                      <button
+                        key={sRole}
+                        type="button"
+                        onClick={() => setRole(sRole)}
+                        className={`text-[11px] px-2.5 py-1 rounded-md border transition-all ${
+                          role === sRole
+                            ? 'bg-violet-500/20 border-violet-500/40 text-violet-300'
+                            : 'bg-white/5 border-white/5 text-neutral-400 hover:text-white'
+                        }`}
+                      >
+                        {sRole}
+                      </button>
+                    ))}
+                  </div>
                 </div>
+
                 {/* Target Company */}
                 <div>
                   <label className="text-sm font-bold text-white mb-2 flex items-center gap-2">
@@ -134,10 +179,13 @@ export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
                   <input
                     type="text"
                     value={company}
-                    onChange={e => setCompany(e.target.value)}
-                    placeholder="e.g. Google, Stripe"
+                    onChange={(e) => setCompany(e.target.value)}
+                    placeholder="e.g. Google, Microsoft, Amazon"
                     className="w-full bg-[#18181b] border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-violet-500 transition-colors text-neutral-200"
                   />
+                  <p className="text-[11px] text-neutral-500 mt-2">
+                    Leave blank to practice general industry questions.
+                  </p>
                 </div>
               </div>
 
@@ -145,13 +193,14 @@ export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
               <div>
                 <label className="text-sm font-bold text-white mb-4 block">Difficulty Level</label>
                 <div className="flex gap-4">
-                  {['EASY', 'MEDIUM', 'HARD'].map(level => (
+                  {['EASY', 'MEDIUM', 'HARD'].map((level) => (
                     <button
                       key={level}
+                      type="button"
                       onClick={() => setDifficulty(level)}
                       className={`px-6 py-2 rounded-lg text-sm font-medium border transition-all ${
                         difficulty === level
-                          ? 'bg-sky-500/10 border-sky-500 text-sky-400'
+                          ? 'bg-sky-500/10 border-sky-500 text-sky-400 font-semibold'
                           : 'bg-[#18181b] border-white/10 text-neutral-400 hover:border-white/20'
                       }`}
                     >
@@ -166,7 +215,7 @@ export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
           {type === 'SPEECHX' && (
             <div className="bg-amber-500/10 border border-amber-500/20 p-5 rounded-2xl text-xs text-amber-300 space-y-2">
               <h4 className="font-bold text-sm text-white flex items-center gap-2">
-                <Mic className="w-4 h-4 text-amber-400" /> AMCAT SpeechX Spoken English Assessment
+                <Mic className="w-4 h-4 text-amber-400" /> AMCAT SpeechX Spoken English Assessment (Voice Only)
               </h4>
               <p>
                 SpeechX measures your spoken fluency, sentence structure, pronunciation, and hesitation penalty across 4 interactive oral modules (Sentence Repeat, Audio Comprehension, Extempore Speech, Grammar Correction).
@@ -176,11 +225,22 @@ export default function InterviewSetup({ onNavigate }: InterviewSetupProps) {
 
           <button
             onClick={handleStart}
-            disabled={loading || (type !== 'SPEECHX' && !role.trim())}
+            disabled={loading}
             className="w-full flex justify-center items-center gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-violet-900/20 disabled:opacity-50 disabled:cursor-not-allowed mt-4"
           >
-            {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Play className="w-5 h-5" />}
-            {loading ? 'Initializing Interview Engine...' : type === 'SPEECHX' ? 'Launch SpeechX Assessment' : 'Start Voice Interview'}
+            {loading ? (
+              <>
+                <Loader2 className="w-5 h-5 animate-spin" /> Initializing AI Interview Engine...
+              </>
+            ) : type === 'SPEECHX' ? (
+              <>
+                <Mic className="w-5 h-5 text-amber-300" /> Launch AMCAT SpeechX Voice Assessment
+              </>
+            ) : (
+              <>
+                <MessageSquare className="w-5 h-5 text-violet-200" /> Start Text Interview
+              </>
+            )}
           </button>
         </div>
       </main>

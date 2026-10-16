@@ -8,18 +8,21 @@ const db_js_1 = __importDefault(require("../config/db.js"));
 const gemini_service_js_1 = require("../ai/gemini.service.js");
 class InterviewService {
     static async startInterview(userId, type, company, role, difficulty) {
+        const effectiveRole = (role && role.trim()) ? role.trim() : 'Software Engineer';
+        const effectiveCompany = (company && company.trim()) ? company.trim() : 'Tech Company';
+        const effectiveDiff = difficulty || 'MEDIUM';
         const interview = await db_js_1.default.interview.create({
             data: {
                 userId,
                 type: type,
-                company,
-                role,
-                difficulty,
+                company: effectiveCompany,
+                role: effectiveRole,
+                difficulty: effectiveDiff,
                 status: 'IN_PROGRESS',
             }
         });
         // Generate first question
-        const questionText = await gemini_service_js_1.GeminiService.generateInterviewQuestion(type, role, company, difficulty, []);
+        const questionText = await gemini_service_js_1.GeminiService.generateInterviewQuestion(type, effectiveRole, effectiveCompany, effectiveDiff, []);
         const question = await db_js_1.default.interviewQuestion.create({
             data: {
                 interviewId: interview.id,
